@@ -136,6 +136,18 @@
   color: #666;
 }
 
+.speed-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(255, 0, 0, 0.75);
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
 .seek-bar {
   flex: 1;
   height: 4px;

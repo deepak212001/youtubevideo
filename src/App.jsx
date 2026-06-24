@@ -8,6 +8,9 @@ const DEFAULT_AUDIO_URL =
   'https://rr2---sn-2ocvhc-5o.googlevideo.com/videoplayback?expire=1782261174&ei=VtE6arrrBdCTvcAPqJXwGQ&ip=14.172.174.170&id=o-ANCvd0EG6X2dB140iZb6mSPImA54PMuYpFTLk2mE4_Rx&itag=140&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&cps=157&bui=ARmQxEWKUvARNAhVGfYswzWb5rNGE4xzCzgV7PnNgVU15LmifpVCxrHdzacL73NFKzCf7_-Z0reI8k4t&spc=SQ-umsLM2HQxKFBdZjeWAYobA7yNNdHxLlXFNwWAsU9Y&vprv=1&svpuc=1&mime=audio%2Fmp4&rqh=1&gir=yes&clen=245107058&dur=15145.052&lmt=1762465938173410&keepalive=yes&fexp=51565116,51565682,51987687&c=ANDROID_VR&txp=5318224&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Cbui%2Cspc%2Cvprv%2Csvpuc%2Cmime%2Crqh%2Cgir%2Cclen%2Cdur%2Clmt&sig=AHEqNM4wRQIgZ-5ESI5j8y_M7erV23PZUQn8NNU1XVZlj85kpugC8YsCIQDrrBY6bYWR73lOmiJV2JdUVmjXxyCqlXCgqcwG2hQx1g%3D%3D&rm=sn-8qj-nbody7e,sn-8qj-nbodd7z,sn-npokk7z&rrc=79,79,104&req_id=6412e6eb2924a3ee&rms=nxu,au&redirect_counter=3&cms_redirect=yes&cmsv=e&ipbypass=yes&met=1782239639,&mh=7C&mip=103.133.65.141&mm=30&mn=sn-2ocvhc-5o&ms=nxu&mt=1782237881&mv=m&mvi=2&pl=24&lsparams=cps,ipbypass,met,mh,mip,mm,mn,ms,mv,mvi,pl,rms&lsig=APaTxxMwRQIhAJqVWth8QyRkmEL2Kgf90_HxVRRKRLQ0l7LTFIbejGLtAiARlFMWp8_XDfzhth_qkhDLgGDG_efhtLj6rUdaMbxhmQ%3D%3D'
 
 const SYNC_THRESHOLD = 0.25
+const SPEED_STEP = 0.25
+const MIN_SPEED = 0.25
+const MAX_SPEED = 4
 
 function formatTime(seconds) {
   if (!Number.isFinite(seconds) || seconds < 0) return '0:00:00'
@@ -40,6 +43,7 @@ export default function App() {
   const [error, setError] = useState(null)
   const [showUrlPanel, setShowUrlPanel] = useState(false)
   const [mediaKey, setMediaKey] = useState(0)
+  const [playbackRate, setPlaybackRate] = useState(1)
 
   const isReady = videoReady && audioReady
 
@@ -140,8 +144,39 @@ export default function App() {
     setCurrentTime(0)
     setDuration(0)
     setError(null)
+    setPlaybackRate(1)
     setMediaKey((k) => k + 1)
   }
+
+  const applySpeed = useCallback((rate) => {
+    const clamped = Math.min(MAX_SPEED, Math.max(MIN_SPEED, rate))
+    setPlaybackRate(clamped)
+    if (videoRef.current) videoRef.current.playbackRate = clamped
+    if (audioRef.current) audioRef.current.playbackRate = clamped
+    return clamped
+  }, [])
+
+  const increaseSpeed = useCallback(() => {
+    setPlaybackRate((prev) => {
+      const next = Math.min(MAX_SPEED, prev + SPEED_STEP)
+      if (videoRef.current) videoRef.current.playbackRate = next
+      if (audioRef.current) audioRef.current.playbackRate = next
+      return next
+    })
+  }, [])
+
+  const decreaseSpeed = useCallback(() => {
+    setPlaybackRate((prev) => {
+      const next = Math.max(MIN_SPEED, prev - SPEED_STEP)
+      if (videoRef.current) videoRef.current.playbackRate = next
+      if (audioRef.current) audioRef.current.playbackRate = next
+      return next
+    })
+  }, [])
+
+  const resetSpeed = useCallback(() => {
+    applySpeed(1)
+  }, [applySpeed])
 
   useEffect(() => {
     const onFullscreenChange = () => {
@@ -215,26 +250,55 @@ export default function App() {
   }, [volume, mediaKey])
 
   useEffect(() => {
+    if (videoRef.current) videoRef.current.playbackRate = playbackRate
+    if (audioRef.current) audioRef.current.playbackRate = playbackRate
+  }, [playbackRate, mediaKey])
+
+  useEffect(() => {
     const onKeyDown = (e) => {
-      if (e.code === 'Space' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+      const isTyping =
+        e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA'
+
+      if (e.code === 'Space' && !isTyping) {
         e.preventDefault()
         togglePlay()
       }
       if (e.code === 'ArrowRight') seekTo(currentTime + 10)
       if (e.code === 'ArrowLeft') seekTo(currentTime - 10)
       if (e.code === 'KeyF') toggleFullscreen()
+
+      if (isTyping) return
+
+      const isPlus =
+        e.key === '+' || e.code === 'NumpadAdd' || (e.code === 'Equal' && e.shiftKey)
+      const isMinus = e.key === '-' || e.code === 'Minus' || e.code === 'NumpadSubtract'
+      const isReset =
+        e.key === '*' || e.code === 'NumpadMultiply' || (e.code === 'Digit8' && e.shiftKey)
+
+      if (isPlus) {
+        e.preventDefault()
+        increaseSpeed()
+      }
+      if (isMinus) {
+        e.preventDefault()
+        decreaseSpeed()
+      }
+      if (isReset) {
+        e.preventDefault()
+        resetSpeed()
+      }
     }
 
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [togglePlay, seekTo, currentTime])
+  }, [togglePlay, seekTo, currentTime, increaseSpeed, decreaseSpeed, resetSpeed])
 
   return (
     <div className="app">
-      <header className="header">
+      {/* <header className="header">
         <h1>Video + Audio Sync Player</h1>
         <p>Alag video aur audio streams ko sync mein chalata hai</p>
-      </header>
+      </header> */}
 
       <div className="player-wrapper" ref={containerRef}>
         <div className="video-container">
@@ -286,6 +350,8 @@ export default function App() {
               <span className="sep">/</span>
               <span>{formatTime(duration)}</span>
             </div>
+
+            <span className="speed-badge">{playbackRate.toFixed(2)}x</span>
 
             <input
               type="range"
@@ -376,7 +442,8 @@ export default function App() {
               Reload Media
             </button>
             <p className="hint">
-              Keyboard: Space = play/pause, ← → = 10s seek, F = fullscreen
+              Keyboard: Space = play/pause, ← → = 10s seek, F = fullscreen, + = speed
+              badhao, - = speed kam, * = normal (1x)
             </p>
           </div>
         )}
