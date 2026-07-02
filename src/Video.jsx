@@ -11,21 +11,22 @@ const SEEK_STEP = 5
 function Video() {
   const playerRef = useRef(null)
   const [speed, setSpeed] = useState(1)
-  const videoLink = "/uploads/d2cf34cf-d388-4d4e-8113-28020ef8fc13/index.m3u8"
+  const [videos, setVideos] = useState([])
+  const [selectedSrc, setSelectedSrc] = useState('')
+  const selectedSrcRef = useRef('')
 
   const videoPlayerOptions = useMemo(() => ({
     controls: true,
     responsive: true,
     fluid: true,
-    sources: [
-      {
-        src: videoLink,
-        type: "application/x-mpegURL"
-      }
-    ]
-  }), [videoLink])
+  }), [])
+
   const handlePlayerReady = (player) => {
     playerRef.current = player;
+
+    if (selectedSrcRef.current) {
+      player.src({ src: selectedSrcRef.current, type: 'application/x-mpegURL' })
+    }
 
     player.on("ratechange", () => {
       setSpeed(player.playbackRate());
@@ -39,6 +40,28 @@ function Video() {
       videojs.log("player will dispose");
     });
   };
+
+  useEffect(() => {
+    fetch('/uploads/manifest.json')
+      .then((r) => (r.ok ? r.json() : []))
+      .then((list) => {
+        setVideos(list)
+        if (list.length > 0) {
+          setSelectedSrc(list[0].src)
+          selectedSrcRef.current = list[0].src
+        }
+      })
+      .catch(() => setVideos([]))
+  }, [])
+
+  useEffect(() => {
+    selectedSrcRef.current = selectedSrc
+    const player = playerRef.current
+    if (player && selectedSrc) {
+      player.src({ src: selectedSrc, type: 'application/x-mpegURL' })
+      player.play().catch(() => {})
+    }
+  }, [selectedSrc])
 
   useEffect(() => {
     const onKeyDown = (e) => {
@@ -112,6 +135,24 @@ function Video() {
       <div>
         <h1>Video player</h1>
       </div>
+
+      {videos.length > 0 && (
+        <div className="video-picker">
+          <label htmlFor="video-select">Video: </label>
+          <select
+            id="video-select"
+            value={selectedSrc}
+            onChange={(e) => setSelectedSrc(e.target.value)}
+          >
+            {videos.map((v, i) => (
+              <option key={v.id} value={v.src}>
+                {`Video ${i + 1} (${v.id.slice(0, 8)})`}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       <div className="video-stage">
         <VideoPlayer
           options={videoPlayerOptions}

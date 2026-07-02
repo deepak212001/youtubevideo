@@ -41,6 +41,16 @@
   color: #888;
 }
 
+.video-picker {
+  margin: 0 0 1rem;
+}
+
+.video-picker select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
 .video-stage {
   position: relative;
   display: inline-block;

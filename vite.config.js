@@ -3,6 +3,26 @@ import react from '@vitejs/plugin-react'
 import fs from 'node:fs'
 import path from 'node:path'
 
+// Scan `public/uploads` for video folders (those containing an index.m3u8)
+// and write a manifest so the frontend can list all available videos.
+function writeUploadsManifest() {
+  const uploadsRoot = path.join(process.cwd(), 'public', 'uploads')
+  if (!fs.existsSync(uploadsRoot)) return
+  const videos = fs
+    .readdirSync(uploadsRoot, { withFileTypes: true })
+    .filter(
+      (d) =>
+        d.isDirectory() &&
+        fs.existsSync(path.join(uploadsRoot, d.name, 'index.m3u8')),
+    )
+    .map((d) => ({ id: d.name, src: `/uploads/${d.name}/index.m3u8` }))
+
+  fs.writeFileSync(
+    path.join(uploadsRoot, 'manifest.json'),
+    JSON.stringify(videos, null, 2),
+  )
+}
+
 // Serve the `uploads/` folder as raw static files so Vite does not try to
 // compile the HLS `.ts` (MPEG transport stream) segments as TypeScript.
 function serveUploads() {
@@ -12,7 +32,11 @@ function serveUploads() {
   }
   return {
     name: 'serve-uploads',
+    buildStart() {
+      writeUploadsManifest()
+    },
     configureServer(server) {
+      writeUploadsManifest()
       const uploadsRoot = path.join(process.cwd(), 'public', 'uploads')
       server.middlewares.use('/uploads', (req, res, next) => {
         const urlPath = decodeURIComponent(req.url.split('?')[0])
