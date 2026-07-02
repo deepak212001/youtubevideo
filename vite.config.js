@@ -13,11 +13,12 @@ function serveUploads() {
   return {
     name: 'serve-uploads',
     configureServer(server) {
+      const uploadsRoot = path.join(process.cwd(), 'public', 'uploads')
       server.middlewares.use('/uploads', (req, res, next) => {
         const urlPath = decodeURIComponent(req.url.split('?')[0])
-        const filePath = path.join(process.cwd(), 'uploads', urlPath)
+        const filePath = path.join(uploadsRoot, urlPath)
 
-        if (!filePath.startsWith(path.join(process.cwd(), 'uploads'))) {
+        if (!filePath.startsWith(uploadsRoot)) {
           res.statusCode = 403
           return res.end('Forbidden')
         }
