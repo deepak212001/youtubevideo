@@ -1,10 +1,18 @@
 [
   {
-    "id": "b1b2c091-0a4c-4e07-85a4-99e8bd67610c",
-    "src": "/uploads/b1b2c091-0a4c-4e07-85a4-99e8bd67610c/index.m3u8"
+    "id": "L18",
+    "src": "/uploads/L18/index.m3u8"
   },
   {
-    "id": "d2cf34cf-d388-4d4e-8113-28020ef8fc13",
-    "src": "/uploads/d2cf34cf-d388-4d4e-8113-28020ef8fc13/index.m3u8"
+    "id": "L19",
+    "src": "/uploads/L19/index.m3u8"
+  },
+  {
+    "id": "L20",
+    "src": "/uploads/L20/index.m3u8"
+  },
+  {
+    "id": "L21",
+    "src": "/uploads/L21/index.m3u8"
   }
 ]

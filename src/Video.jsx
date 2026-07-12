@@ -177,7 +177,8 @@ function Video() {
             >
               {videos.map((v, i) => (
                 <option key={v.id} value={v.src}>
-                  {`Video ${i + 1}`}
+                  {/* {`Video ${i + 1}`} */}
+                  {v.id}
                 </option>
               ))}
             </select>
