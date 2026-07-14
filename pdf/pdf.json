@@ -1,0 +1,67 @@
+[
+    {
+        "id": "1",
+        "name": "Algorithm DPPs",
+        "file": "pdf/Algorithms DPPs.pdf"
+    },
+    {
+        "id": "2",
+        "name": "COA DPPs",
+        "file": "pdf/COA DPPs.pdf"
+    },
+    {
+        "id": "3",
+        "name": "Compiler DPPs",
+        "file": "pdf/Compiler DPPs.pdf"
+    },
+    {
+        "id": "4",
+        "name": "Computer Network DPPs",
+        "file": "pdf/Computer Networks DPPs.pdf"
+    },
+    {
+        "id": "5",
+        "name": "Data Structures DPPs",
+        "file": "pdf/Data Structures DPPs.pdf"
+    },
+    {
+        "id": "6",
+        "name": "DBMS DPPs",
+        "file": "pdf/DBMS DPPs.pdf"
+    },
+    {
+        "id": "7",
+        "name": "Digital Logic DPPs",
+        "file": "pdf/Digital Logic DPPs.pdf"
+    },
+    {
+        "id": "8",
+        "name": "Operating Systems DPPs",
+        "file": "pdf/Operating Systems DPPs.pdf"
+    },
+    {
+        "id": "9",
+        "name": "Programming DPPs",
+        "file": "pdf/Programming DPPs.pdf"
+    },
+    {
+        "id": "10",
+        "name": "TOC DPPs",
+        "file": "pdf/TOC DPPs.pdf"
+    },
+    {
+        "id": "11",
+        "name": "GATECSE",
+        "file": "pdf/GATECSE.pdf"
+    },
+    {
+        "id": "12",
+        "name": "Aptitude DPPs",
+        "file": "pdf/Aptitude DPPs.pdf"
+    },
+    {
+        "id": "13",
+        "name": "PW GATE CSE PYQs 2008-2023",
+        "file": "pdf/PW GATE CSE PYQs 2008-2023.pdf"
+    }
+]
