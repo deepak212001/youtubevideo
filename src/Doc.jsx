@@ -1,4 +1,4 @@
-import pdfs from "../pdf/pdf.json";
+import pdfs from "../public/pdf/pdf.json";
 import "./Doc.css";
 
 export default function Doc() {
